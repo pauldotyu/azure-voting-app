@@ -53,7 +53,7 @@ spec:
     spec:
       containers:
       - name: azure-vote-front
-        image: <YOUR_ACR_NAME>.azurecr.io/azure-vote-front:v1.0.0
+        image: <YOUR_ACR_SERVER>/azure-vote-front:v1.0.0
         ports:
         - containerPort: 80
         resources:
