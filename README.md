@@ -10,22 +10,48 @@ description: "This sample creates a multi-container application in an Azure Kube
 
 # Azure Voting App
 
+This repo has been updated to support multi-architecture container builds (`amd64` and `arm64`) to support [Azure Open Source Labs](https://github.com/Azure-Samples/azure-opensource-labs) content.
+
+> The original repo cna be found [here](https://github.com/Azure-Samples/azure-voting-app-redis)
+
 This sample creates a multi-container application in an Azure Kubernetes Service (AKS) cluster. The application interface has been built using Python / Flask. The data component is using Redis.
 
-To walk through a quick deployment of this application, see the AKS [quick start](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough?WT.mc_id=none-github-nepeters).
+To walk through a quick deployment of this application, see the AKS [quickstart](https://learn.microsoft.com/azure/aks/tutorial-kubernetes-prepare-app).
 
 To walk through a complete experience where this code is packaged into container images, uploaded to Azure Container Registry, and then run in and AKS cluster, see the [AKS tutorials](https://docs.microsoft.com/en-us/azure/aks/tutorial-kubernetes-prepare-app?WT.mc_id=none-github-nepeters).
 
-## Contributing
+## Using GitHub Action
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.microsoft.com.
+This repo contains a [GitHub workflow file](./.github/workflows/docker-image.yml) to build and publish your container image to Azure Container Registry. Make sure you have deployed an Azure Container Registry with the [admin account enabled](https://learn.microsoft.com/azure/container-registry/container-registry-authentication?tabs=azure-cli#admin-account).
 
-When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+The admin account credentials needs to be stored as secrets in your GitHub repo. You can upload secrets by following this guide or you can follow these instructions to upload secrets to your repo using the GitHub CLI.
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+Using the Azure CLI, run the following commands pull out the registry credentials:
+
+```bash
+acrServer=$(az acr show --name <YOUR_ACR_NAME> --query loginServer -o tsv)
+acrUsername=$(az acr credential show --name <YOUR_ACR_NAME> --query username -o tsv)
+acrPassword=$(az acr credential show --name <YOUR_ACR_NAME> --query "passwords[0].value" -o tsv)
+```
+
+Using the GitHub CLI, run the following commands to set your repository secrets:
+
+```bash
+gh secret set ACR_SERVER --body $acrServer --repos <YOUR_GITHUB_ACCOUNT>/<YOUR_REPO_NAME>
+gh secret set ACR_USERNAME --body $acrUserName --repos <YOUR_GITHUB_ACCOUNT>/<YOUR_REPO_NAME>
+gh secret set ACR_PASSWORD --body $acrPassword --repos <YOUR_GITHUB_ACCOUNT>/<YOUR_REPO_NAME>
+```
+
+To push an image to the Azure Container Registry, create a new tag and release using the following command:
+
+```bash
+gh release create v1.0.0
+```
+
+This will kick off the GitHub Action workflow to build and publish the container image.
+
+To validate your image, you can run the following:
+
+```bash
+az acr manifest list-metadata --registry <YOUR_ACR_NAME> --name azure-vote-front
+```
