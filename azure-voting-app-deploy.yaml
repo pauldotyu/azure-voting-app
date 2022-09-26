@@ -12,6 +12,8 @@ spec:
       labels:
         app: azure-vote-back
     spec:
+      nodeSelector:
+        "kubernetes.io/arch": arm64 
       containers:
       - name: azure-vote-back
         image: redis:latest
@@ -51,6 +53,8 @@ spec:
       labels:
         app: azure-vote-front
     spec:
+      nodeSelector:
+        "kubernetes.io/arch": arm64 
       containers:
       - name: azure-vote-front
         image: <YOUR_ACR_SERVER>/azure-vote-front:v1.0.0
