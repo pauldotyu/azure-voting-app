@@ -79,3 +79,16 @@ spec:
   - port: 80
   selector:
     app: azure-vote-front
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: azure-vote-front
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: azure-vote-front
+  minReplicas: 1
+  maxReplicas: 50
+  targetCPUUtilizationPercentage: 50
